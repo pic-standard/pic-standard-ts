@@ -70,3 +70,24 @@ export function getVersion(): VersionInfo {
 // ---------------------------------------------------------------------------
 
 export { canonicalize, CanonicalizationError } from './canonical.js';
+
+// ---------------------------------------------------------------------------
+// Schema validation surface.
+//
+// Ajv-compiled validator for PIC/1.0 Action Proposals against the vendored
+// schema at the current submodule pin. Supporting types mirror the schema.
+// ---------------------------------------------------------------------------
+
+export { validateProposal } from './schema.js';
+export type { ValidationError, ValidationResult } from './schema.js';
+export type {
+  Action,
+  ActionProposal,
+  Claim,
+  Evidence,
+  HashEvidence,
+  ImpactClass,
+  Provenance,
+  SigEvidence,
+  TrustLevel,
+} from './types.js';
