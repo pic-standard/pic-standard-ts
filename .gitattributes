@@ -1,0 +1,40 @@
+# Line-ending policy: normalize all text files to LF at commit.
+* text=auto eol=lf
+
+# Explicit text markers (belt-and-braces for editors that miss text detection).
+*.ts     text eol=lf
+*.tsx    text eol=lf
+*.js     text eol=lf
+*.cjs    text eol=lf
+*.mjs    text eol=lf
+*.d.ts   text eol=lf
+*.json   text eol=lf
+*.md     text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.toml   text eol=lf
+*.txt    text eol=lf
+*.sh     text eol=lf
+*.html   text eol=lf
+*.css    text eol=lf
+
+# Windows batch scripts require CRLF.
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# Binary blobs.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.pdf    binary
+*.zip    binary
+*.tar.gz binary
+*.woff   binary
+*.woff2  binary
+
+# Vendored submodule (populated at B1): exclude from GitHub language stats
+# so the Python + docs content of pic-standard/pic-standard does not skew
+# the TypeScript repo's language bar.
+vendor/** linguist-vendored=true
