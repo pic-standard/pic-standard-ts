@@ -91,3 +91,13 @@ export type {
   SigEvidence,
   TrustLevel,
 } from './types.js';
+
+// ---------------------------------------------------------------------------
+// Error codes.
+//
+// Static TS mirror of Repo A's PICErrorCode enum. Parity is enforced by
+// test/errors.test.ts.
+// ---------------------------------------------------------------------------
+
+export { PICErrorCode } from './errors.js';
+export type { PICErrorCode as PICErrorCodeValue } from './errors.js';
