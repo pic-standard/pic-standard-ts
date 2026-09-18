@@ -1,0 +1,3 @@
+[submodule "vendor/pic-standard"]
+	path = vendor/pic-standard
+	url = https://github.com/pic-standard/pic-standard.git
