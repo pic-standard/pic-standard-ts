@@ -7,14 +7,26 @@ https://semver.org/
 
 ## [Unreleased]
 
-Pre-verifier scaffold plus PIC-CJSON/1.0 canonicalization and proposal
-schema validation. Currently claims canonicalization parity only. Core,
+Pre-verifier scaffold plus PIC-CJSON/1.0 canonicalization, proposal
+schema validation, and error-code mirror. Currently claims
+canonicalization parity only. Core,
 trust-sanitization, and verifier-decision paths are not yet implemented,
 so this package MUST NOT be treated as a conformant PIC verifier. Marked
 `"private": true` on npm.
 
 ### Added
 
+- `PICErrorCode` in `src/errors.ts`: static TypeScript mirror of Repo
+  A's `PICErrorCode` enum (10 members from `INVALID_REQUEST` through
+  `INTERNAL_ERROR`, including the v0.9.0a2 `PIC_DUPLICATE_ID` code).
+  Wrapped in `Object.freeze()` for runtime immutability. Value export
+  as `PICErrorCode`; type export as `PICErrorCodeValue` from the
+  public barrel.
+- Errors parity test suite in `test/errors.test.ts` (8 tests). Parses
+  the `class PICErrorCode` body in
+  `vendor/pic-standard/sdk-python/pic_standard/errors.py` and asserts
+  name, value, count, and mapping parity. Local shape tests (frozen,
+  wire-prefixed, unique) run regardless of submodule availability.
 - `validateProposal(value)` in `src/schema.ts` performing Ajv-compiled
   schema validation against the vendored PIC/1.0 proposal schema at the
   current submodule pin. Lazy singleton compile; returns
