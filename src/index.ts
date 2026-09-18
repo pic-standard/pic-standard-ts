@@ -1,14 +1,13 @@
 /**
  * PIC Standard TypeScript implementation track.
  *
- * This package is pre-parity. Until the conformance runner passes
- * canonicalization, core, and trust-sanitization modes against the
- * pinned pic-standard corpus, the package MUST NOT be treated as a
- * conformant PIC implementation.
+ * This package is pre-verifier. It currently claims canonicalization
+ * parity only. Core and trust-sanitization parity are not implemented yet,
+ * so this package MUST NOT be treated as a conformant PIC verifier.
  *
- * No verifier surface is exported yet. Consumers MUST NOT treat this
- * package as a conformant PIC implementation until supportedModes claims
- * the relevant conformance mode and the corresponding tests pass.
+ * Verifier decisions (`verifyProposal`) are not yet implemented.
+ * Consumers MUST NOT invoke paths for modes not listed in
+ * `supportedModes`.
  */
 
 // ---------------------------------------------------------------------------
@@ -16,9 +15,9 @@
 //
 // Machine-readable metadata for conformance and differential tooling.
 //
-// `supportedModes` is empty until B2 lands canonicalization parity.
-// Consumers MUST NOT invoke verifier paths based on parity that this
-// field does not claim.
+// `supportedModes` reflects the modes this implementation currently claims
+// parity for against the pinned pic-standard corpus. Consumers MUST NOT
+// invoke paths for modes not listed here.
 // ---------------------------------------------------------------------------
 
 /**
@@ -41,7 +40,7 @@ export interface VersionInfo {
   readonly picProtocolVersion: string;
   /** Git tag of the pinned pic-standard repository consumed as the conformance corpus. */
   readonly conformanceManifestRef: string;
-  /** Modes this implementation claims parity for. Empty until B2+. */
+  /** Modes this implementation claims parity for. */
   readonly supportedModes: readonly SupportedMode[];
 }
 
@@ -50,7 +49,7 @@ const VERSION_INFO: VersionInfo = {
   implVersion: '0.0.0-alpha.0',
   picProtocolVersion: 'PIC/1.0',
   conformanceManifestRef: 'v0.9.0-alpha.2',
-  supportedModes: [],
+  supportedModes: ['canonicalization'],
 };
 
 /**
@@ -62,3 +61,12 @@ const VERSION_INFO: VersionInfo = {
 export function getVersion(): VersionInfo {
   return VERSION_INFO;
 }
+
+// ---------------------------------------------------------------------------
+// Canonicalization surface.
+//
+// PIC-CJSON/1.0 canonicalizer. Passes all vendored canonicalization
+// conformance vectors byte-for-byte against the pinned pic-standard tag.
+// ---------------------------------------------------------------------------
+
+export { canonicalize, CanonicalizationError } from './canonical.js';
