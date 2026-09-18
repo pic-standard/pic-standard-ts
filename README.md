@@ -2,17 +2,18 @@
 
 TypeScript implementation track for PIC Standard.
 
-This repository is currently pre-parity. The implementation target is PIC
-`v0.9.0-alpha.2`, pinned from the canonical
+This repository is currently pre-verifier. The implementation target is
+PIC `v0.9.0-alpha.2`, pinned from the canonical
 [`pic-standard/pic-standard`](https://github.com/pic-standard/pic-standard)
-repository. Until the conformance runner passes canonicalization, core,
-and trust-sanitization modes, this package should not be treated as a
-conformant PIC implementation.
+repository. Canonicalization parity is currently achieved; core and
+trust-sanitization parity are not yet implemented, so this package should
+not be treated as a conformant PIC verifier.
 
 ## Status
 
-- Pre-parity. The package exposes only machine-readable version metadata.
-  No verifier surface is exported yet.
+- Pre-verifier. The package exports PIC-CJSON canonicalization and
+  machine-readable version metadata. Verifier decisions (`verifyProposal`)
+  are not implemented yet.
 - No published npm release. The package is marked `"private": true` and
   will remain so until an explicit release/publish PR removes that guard.
 - Conformance corpus is consumed via a git submodule pinned to
