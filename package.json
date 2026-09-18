@@ -1,0 +1,57 @@
+{
+  "name": "@pic-standard/pic-standard-ts",
+  "version": "0.0.0-alpha.0",
+  "description": "TypeScript implementation track for PIC Standard (pre-parity, alpha).",
+  "private": true,
+  "type": "module",
+  "keywords": [
+    "pic-standard",
+    "pic",
+    "provenance",
+    "intent-contracts",
+    "ai-safety",
+    "ai-agents",
+    "tool-calling",
+    "fail-closed",
+    "verifier",
+    "typescript"
+  ],
+  "homepage": "https://github.com/pic-standard/pic-standard-ts#readme",
+  "bugs": {
+    "url": "https://github.com/pic-standard/pic-standard-ts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pic-standard/pic-standard-ts.git"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Fabio Marcello Salvadori",
+    "email": "fabio@madeinpluto.com"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.5.0",
+    "vitest": "^4.0.0"
+  }
+}

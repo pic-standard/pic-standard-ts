@@ -1,0 +1,63 @@
+# CI workflow for pic-standard-ts.
+#
+# Triggered on pushes to main and pull requests targeting main.
+#
+# Runs on Node 20 (matches package.json engines >=20.19.0). Node 20 + 22
+# matrix expansion planned for B8 once real implementation code exists.
+#
+# Steps: install (npm ci for reproducibility), format:check, lint,
+# typecheck, test. Fast-failing order.
+#
+# The checkout step uses `submodules: recursive` so the vendored
+# pic-standard corpus (added at B1 under vendor/pic-standard/) is
+# available to tests that read the conformance manifest.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Least-privilege default; individual jobs elevate if needed.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & test (Node 20)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
