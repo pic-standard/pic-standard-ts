@@ -5,15 +5,20 @@ All notable changes to this project will be documented in this file.
 This project follows Semantic Versioning:
 https://semver.org/
 
-## [Unreleased]
+## [0.9.0] - 2026-09-21
 
-PIC-CJSON/1.0 canonicalization, proposal schema validation, error-code
-mirror, the core verifier pipeline, trust-sanitization vector parity,
-and a conformance runner. Currently claims canonicalization, core, and
-trust-sanitization parity. Evidence-mode parity, signature verification,
-and evidence-derived trust remain out of scope for v0.9.0, so this
-package MUST NOT be treated as a fully conformant PIC verifier. Marked
-`"private": true` on npm.
+First v0.9.0 release of the TypeScript implementation of PIC Standard.
+Passes the shared conformance corpus from
+[`pic-standard/pic-standard@v0.9.0`](https://github.com/pic-standard/pic-standard/releases/tag/v0.9.0)
+for `canonicalization`, `core`, and `trust_sanitization` modes (42 of
+84 vectors in the claimed-mode subset). Advisory differential CI in
+this repository confirms parity against the Python reference
+implementation on every pull request targeting `main`. Evidence-mode
+parity, signature verification, and evidence-derived trust remain out
+of scope for v0.9.0 and are v0.9.x completion items, so this package
+MUST NOT be treated as implementing full PIC evidence-mode verifier
+semantics. Published to npm under the `alpha` dist-tag:
+`npm install @pic-standard/pic-standard-ts@alpha`.
 
 ### Added
 
@@ -169,6 +174,8 @@ exit_code, results[]: {id, passed, reason_code}}` with `results[]`
 
 ### Changed
 
+- **Submodule pin bumped from `pic-standard/pic-standard@v0.9.0-alpha.2` to `pic-standard/pic-standard@v0.9.0`.** The claimed modes (`canonicalization`, `core`, `trust_sanitization`) continue to pass against the pinned shared corpus; advisory differential CI confirms semantic-subset parity against the Python reference implementation on pull requests targeting `main`.
+- **`package.json`**: `version` bumped from `0.0.0-alpha.0` to `0.9.0`; `description` updated to name the shipped modes explicitly; `"private": true` removed to allow `npm publish --access public --tag alpha` (npm dist-tag `alpha`, not `latest`).
 - CI now runs a matrix of Node 20 and Node 22 (was Node 20 only before
   B8). `fail-fast: false` so both legs surface independent results.
   Node 20 stays as the engines floor (`>=20.19.0`) and the v0.9.0
@@ -187,10 +194,7 @@ exit_code, results[]: {id, passed, reason_code}}` with `results[]`
 
 ### Notes
 
-- The differential CI job is deliberately advisory: it can fail
-  visibly on PRs, but it is not in the required-checks list on `main`.
-  Release-tag gating (a required diff for Repo B tags) is deferred to
-  B10.
+- The differential CI job is deliberately advisory: it can fail visibly on PRs, but it is not in the required-checks list on `main`. Release-tag gating (making the differential a required check for `pic-standard-ts` release tags) is deferred to v0.9.x.
 - Conformance modes claimed: `canonicalization`, `core`, and
   `trust_sanitization`. Evidence-mode parity, signature verification,
   and evidence-derived trust remain out of scope for v0.9.0.
@@ -205,6 +209,4 @@ exit_code, results[]: {id, passed, reason_code}}` with `results[]`
   (`canonicalize`, `verifyProposal`, `PICErrorCode`, `validateProposal`,
   `getVersion`, plus the PIC/1.0 type surface). The runner is invoked
   after build via `node dist/run.js`.
-- The `@pic-standard/pic-standard-ts` package name is not yet published
-  to npm. It is marked `"private": true` and will remain so until an
-  explicit release/publish PR removes that guard.
+- The `@pic-standard/pic-standard-ts` package is published to npm as `0.9.0` under the `alpha` dist-tag. Install with `npm install @pic-standard/pic-standard-ts@alpha`. The default `npm install @pic-standard/pic-standard-ts` (no dist-tag) does NOT resolve to `0.9.0` until an explicit `npm dist-tag add @pic-standard/pic-standard-ts@0.9.0 latest`. `0.9.0` is immutable on npm; any fix ships as a new version.
