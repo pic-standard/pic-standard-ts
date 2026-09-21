@@ -135,14 +135,21 @@ package MUST NOT be treated as a fully conformant PIC verifier. Marked
 
 ### Changed
 
+- CI now runs a matrix of Node 20 and Node 22 (was Node 20 only before
+  B8). `fail-fast: false` so both legs surface independent results.
+  Node 20 stays as the engines floor (`>=20.19.0`) and the v0.9.0
+  compatibility floor; Node 22 covers the newer supported LTS line
+  used by many current deployments. Node 24+ expansion is
+  intentionally deferred. Two check runs per PR:
+  `Build & test (Node 20)` and `Build & test (Node 22)`.
 - `getVersion().supportedModes` now returns
   `['canonicalization', 'core', 'trust_sanitization']` (was
   `['canonicalization', 'core']` before B6, `['canonicalization']`
   before B5, `[]` before B2).
-- Public positioning updated to reflect that verifier decisions are now
-  implemented and core parity is claimed. Evidence verification and
-  trust-sanitization parity are still explicitly out of the current
-  claim.
+- Public positioning updated to reflect that verifier decisions,
+  core parity, and trust-sanitization parity are now implemented.
+  Evidence-mode parity, signature verification, and evidence-derived
+  trust remain explicitly out of the current claim.
 
 ### Notes
 
