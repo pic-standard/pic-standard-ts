@@ -1,8 +1,7 @@
 {
   "name": "@pic-standard/pic-standard-ts",
-  "version": "0.0.0-alpha.0",
-  "description": "TypeScript implementation track for PIC Standard (pre-parity, alpha).",
-  "private": true,
+  "version": "0.9.0",
+  "description": "TypeScript implementation of PIC Standard (Provenance & Intent Contracts), passing the shared conformance corpus for canonicalization, core, and trust_sanitization modes.",
   "type": "module",
   "keywords": [
     "pic-standard",
