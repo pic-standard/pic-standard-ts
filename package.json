@@ -3,6 +3,18 @@
   "version": "0.9.0",
   "description": "TypeScript implementation of PIC Standard (Provenance & Intent Contracts), passing the shared conformance corpus for canonicalization, core, and trust_sanitization modes.",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "pic-standard",
     "pic",
@@ -40,7 +52,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "conformance": "npm run build && node dist/run.js --manifest vendor/pic-standard/conformance/manifest.json --filter-mode canonicalization --filter-mode core --filter-mode trust_sanitization",
-    "conformance:json": "npm run build && node dist/run.js --manifest vendor/pic-standard/conformance/manifest.json --filter-mode canonicalization --filter-mode core --filter-mode trust_sanitization --json"
+    "conformance:json": "npm run build && node dist/run.js --manifest vendor/pic-standard/conformance/manifest.json --filter-mode canonicalization --filter-mode core --filter-mode trust_sanitization --json",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "ajv": "^8.17.1",
