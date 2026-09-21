@@ -3,11 +3,11 @@
 [![CI](https://github.com/pic-standard/pic-standard-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/pic-standard/pic-standard-ts/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 ![PIC baseline](https://img.shields.io/badge/PIC-v0.9.0-blue)
-![npm](https://img.shields.io/badge/npm-alpha-orange)
+![npm](https://img.shields.io/badge/npm-latest-green)
 
 **Make AI-agent tool calls checkable before they execute.**
 
-> **v0.9.0 (2026-09-21):** First v0.9.0 release of the TypeScript verifier. Passes the shared conformance corpus from [`pic-standard/pic-standard@v0.9.0`](https://github.com/pic-standard/pic-standard/releases/tag/v0.9.0) for `canonicalization`, `core`, and `trust_sanitization`. Published to npm under the `alpha` dist-tag; install with `npm install @pic-standard/pic-standard-ts@alpha`. Evidence-mode parity remains a v0.9.x completion item.
+> **v0.9.0 (2026-09-21):** First v0.9.0 release of the TypeScript verifier. Passes the shared conformance corpus from [`pic-standard/pic-standard@v0.9.0`](https://github.com/pic-standard/pic-standard/releases/tag/v0.9.0) for `canonicalization`, `core`, and `trust_sanitization`. Published to npm as `@pic-standard/pic-standard-ts@0.9.0`. Install with `npm install @pic-standard/pic-standard-ts`. Evidence-mode parity remains a v0.9.x completion item.
 
 PIC Standard, short for **Provenance & Intent Contracts**, is a protocol
 for controlling AI-agent actions with structured intent, impact,
@@ -80,7 +80,7 @@ Not yet implemented in v0.9.0:
 - HTTP bridge parity
 - npm release parity with the Python package
 
-This package is prepared for publication to npm as `0.9.0` under the `alpha` dist-tag; after publish, install with `npm install @pic-standard/pic-standard-ts@alpha`. It should not yet be treated as implementing full PIC evidence-mode verifier semantics: evidence-mode parity remains a v0.9.x completion item.
+This package is prepared for publication to npm as `@pic-standard/pic-standard-ts@0.9.0`. After publication, install with `npm install @pic-standard/pic-standard-ts`. It should not yet be treated as implementing full PIC evidence-mode verifier semantics: evidence-mode parity remains a v0.9.x completion item.
 
 ## Tiny example
 

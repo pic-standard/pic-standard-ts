@@ -17,8 +17,7 @@ implementation on every pull request targeting `main`. Evidence-mode
 parity, signature verification, and evidence-derived trust remain out
 of scope for v0.9.0 and are v0.9.x completion items, so this package
 MUST NOT be treated as implementing full PIC evidence-mode verifier
-semantics. Published to npm under the `alpha` dist-tag:
-`npm install @pic-standard/pic-standard-ts@alpha`.
+semantics. Published to npm as `@pic-standard/pic-standard-ts@0.9.0`. Install with `npm install @pic-standard/pic-standard-ts`.
 
 ### Added
 
@@ -175,7 +174,7 @@ exit_code, results[]: {id, passed, reason_code}}` with `results[]`
 ### Changed
 
 - **Submodule pin bumped from `pic-standard/pic-standard@v0.9.0-alpha.2` to `pic-standard/pic-standard@v0.9.0`.** The claimed modes (`canonicalization`, `core`, `trust_sanitization`) continue to pass against the pinned shared corpus; advisory differential CI confirms semantic-subset parity against the Python reference implementation on pull requests targeting `main`.
-- **`package.json`**: `version` bumped from `0.0.0-alpha.0` to `0.9.0`; `description` updated to name the shipped modes explicitly; `"private": true` removed to allow `npm publish --access public --tag alpha` (npm dist-tag `alpha`, not `latest`).
+- **`package.json`**: `version` bumped from `0.0.0-alpha.0` to `0.9.0`; `description` updated to name the shipped modes explicitly; `"private": true` removed to allow `npm publish --access public` (published under the `latest` dist-tag).
 - CI now runs a matrix of Node 20 and Node 22 (was Node 20 only before
   B8). `fail-fast: false` so both legs surface independent results.
   Node 20 stays as the engines floor (`>=20.19.0`) and the v0.9.0
@@ -209,4 +208,4 @@ exit_code, results[]: {id, passed, reason_code}}` with `results[]`
   (`canonicalize`, `verifyProposal`, `PICErrorCode`, `validateProposal`,
   `getVersion`, plus the PIC/1.0 type surface). The runner is invoked
   after build via `node dist/run.js`.
-- The `@pic-standard/pic-standard-ts` package is published to npm as `0.9.0` under the `alpha` dist-tag. Install with `npm install @pic-standard/pic-standard-ts@alpha`. The default `npm install @pic-standard/pic-standard-ts` (no dist-tag) does NOT resolve to `0.9.0` until an explicit `npm dist-tag add @pic-standard/pic-standard-ts@0.9.0 latest`. `0.9.0` is immutable on npm; any fix ships as a new version.
+- The `@pic-standard/pic-standard-ts` package is published to npm as `0.9.0` under the `latest` dist-tag. Install with `npm install @pic-standard/pic-standard-ts`. `0.9.0` is immutable on npm; any fix ships as a new version.
