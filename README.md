@@ -149,6 +149,19 @@ An advisory CI job runs on every push to `main` and every PR into
 envelope against the Python reference verifier's, on the same pinned
 vendored corpus.
 
+```mermaid
+graph TD
+    A[Shared conformance corpus<br/>pic-standard/pic-standard v0.9.0] --> B[TypeScript verifier]
+    A --> C[Python reference verifier]
+    B --> D[TypeScript envelope]
+    C --> E[Python envelope]
+    D --> F[Differential CI]
+    E --> F
+    F --> G{Same semantic subset?}
+    G -- Yes --> H[Parity signal for claimed modes]
+    G -- No --> I[Diff artifact: py.json / ts.json / diff.txt]
+```
+
 Both runners emit their JSON envelope for the three claimed modes
 (canonicalization, core, trust_sanitization). A small Python diff
 script projects each envelope to the semantic subset that matters for
