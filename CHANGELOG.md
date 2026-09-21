@@ -21,8 +21,9 @@ package MUST NOT be treated as a fully conformant PIC verifier. Marked
   in `.github/workflows/ci.yml`. Runs on `push` to `main` and
   `pull_request` targeting `main`; Node 20 only (matrix Node coverage
   handled by the `build` job). Installs `pic_standard` from the
-  vendored submodule so the manifest, schema, vectors, and Python
-  reference verifier all come from the same pinned commit. Emits both
+  vendored `pic-standard` repository root so the Python package
+  metadata, manifest, schema, vectors, and reference verifier all
+  come from the same pinned commit. Emits both
   TypeScript and Python conformance envelopes for the three claimed
   modes (canonicalization + core + trust_sanitization; evidence is
   deliberately unimplemented in TS), then compares the plan section
