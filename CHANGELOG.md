@@ -7,15 +7,33 @@ https://semver.org/
 
 ## [Unreleased]
 
-Pre-verifier scaffold plus PIC-CJSON/1.0 canonicalization, proposal
-schema validation, and error-code mirror. Currently claims
-canonicalization parity only. Core,
-trust-sanitization, and verifier-decision paths are not yet implemented,
-so this package MUST NOT be treated as a conformant PIC verifier. Marked
-`"private": true` on npm.
+PIC-CJSON/1.0 canonicalization, proposal schema validation, error-code
+mirror, and the core verifier pipeline. Currently claims canonicalization
+and core parity. Trust-sanitization parity against the full vendored
+vector suite is not yet complete, and evidence verification is not
+implemented in v0.9.0, so this package MUST NOT be treated as a fully
+conformant PIC verifier. Marked `"private": true` on npm.
 
 ### Added
 
+- `verifyProposal(proposal, options?)` in `src/pipeline.ts` implementing
+  the PIC/1.0 core verifier pipeline. Runs (in order) schema validation,
+  duplicate provenance-id check, strict-trust sanitization (defensive
+  copy; default `true` per v0.9.0a2), tool binding, and the core causal
+  contract. Returns a `VerifyResult` discriminated union
+  `{allowed, error, eval_ms}`. Timing via `node:perf_hooks`
+  `performance.now()`. Schema-invalid input returns a `VerifyResult`
+  with `PIC_SCHEMA_INVALID`; no exception escapes for bad user input.
+- Pure verification primitives in `src/verifier.ts`:
+  `findDuplicateProvenanceId`, `sanitizeTrust`, `checkToolBinding`,
+  `checkCausalContract`, `isHighImpact`. No I/O, no schema, no evidence
+  verification.
+- Pipeline test suite in `test/pipeline.test.ts` (33 tests). Manifest-
+  driven vendored core vectors (all 7 pass expected allow/block verdicts
+  and error codes), plus local behavior tests, error-precedence pin,
+  high-impact enum coverage, a mutation guard on strict-trust
+  sanitization, and an explicit no-trust-elevation test for top-level
+  evidence.
 - `PICErrorCode` in `src/errors.ts`: static TypeScript mirror of Repo
   A's `PICErrorCode` enum (10 members from `INVALID_REQUEST` through
   `INTERNAL_ERROR`, including the v0.9.0a2 `PIC_DUPLICATE_ID` code).
@@ -74,15 +92,20 @@ so this package MUST NOT be treated as a conformant PIC verifier. Marked
 
 ### Changed
 
-- `getVersion().supportedModes` now returns `['canonicalization']` (was
+- `getVersion().supportedModes` now returns
+  `['canonicalization', 'core']` (was `['canonicalization']` before B5,
   `[]` before B2).
+- Public positioning updated to reflect that verifier decisions are now
+  implemented and core parity is claimed. Evidence verification and
+  trust-sanitization parity are still explicitly out of the current
+  claim.
 
 ### Notes
 
-- Conformance modes claimed: `canonicalization` only. Core and
-  trust-sanitization parity are planned for later work blocks in the
-  v0.9.0 track. Evidence-mode parity is out of scope for v0.9.0
-  entirely.
+- Conformance modes claimed: `canonicalization` and `core`.
+  Trust-sanitization parity against the vendored vector suite lands in
+  a subsequent work block. Evidence-mode parity is out of scope for
+  v0.9.0 entirely.
 - The `@pic-standard/pic-standard-ts` package name is not yet published
   to npm. It is marked `"private": true` and will remain so until an
   explicit release/publish PR removes that guard.

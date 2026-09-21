@@ -1,11 +1,13 @@
 /**
  * PIC Standard TypeScript implementation track.
  *
- * This package is pre-verifier. It currently claims canonicalization
- * parity only. Core and trust-sanitization parity are not implemented yet,
- * so this package MUST NOT be treated as a conformant PIC verifier.
+ * This package currently claims canonicalization and core parity. The
+ * `verifyProposal()` pipeline enforces the core verifier rules
+ * (duplicate provenance-id check, strict-trust sanitization, exact tool
+ * binding, causal contract). Trust-sanitization parity against the full
+ * vendored vector suite is not yet complete, and evidence verification
+ * is not implemented in v0.9.0.
  *
- * Verifier decisions (`verifyProposal`) are not yet implemented.
  * Consumers MUST NOT invoke paths for modes not listed in
  * `supportedModes`.
  */
@@ -49,7 +51,7 @@ const VERSION_INFO: VersionInfo = {
   implVersion: '0.0.0-alpha.0',
   picProtocolVersion: 'PIC/1.0',
   conformanceManifestRef: 'v0.9.0-alpha.2',
-  supportedModes: ['canonicalization'],
+  supportedModes: ['canonicalization', 'core'],
 };
 
 /**
@@ -101,3 +103,15 @@ export type {
 
 export { PICErrorCode } from './errors.js';
 export type { PICErrorCode as PICErrorCodeValue } from './errors.js';
+
+// ---------------------------------------------------------------------------
+// Core verifier surface.
+//
+// The verifyProposal() pipeline runs schema validation, duplicate
+// provenance-id check, strict-trust sanitization, tool binding, and the
+// core causal contract. Evidence verification is not implemented in
+// v0.9.0.
+// ---------------------------------------------------------------------------
+
+export { verifyProposal } from './pipeline.js';
+export type { VerifyOptions, VerifyResult, VerifyError } from './pipeline.js';
