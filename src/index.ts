@@ -1,12 +1,13 @@
 /**
  * PIC Standard TypeScript implementation track.
  *
- * This package currently claims canonicalization and core parity. The
- * `verifyProposal()` pipeline enforces the core verifier rules
- * (duplicate provenance-id check, strict-trust sanitization, exact tool
- * binding, causal contract). Trust-sanitization parity against the full
- * vendored vector suite is not yet complete, and evidence verification
- * is not implemented in v0.9.0.
+ * This package currently claims canonicalization, core, and
+ * trust-sanitization parity. The `verifyProposal()` pipeline enforces
+ * the core verifier rules (duplicate provenance-id check, strict-trust
+ * sanitization, exact tool binding, causal contract) and passes the
+ * vendored trust-sanitization vector matrix. Evidence-mode parity,
+ * signature verification, and evidence-derived trust remain out of
+ * scope for v0.9.0.
  *
  * Consumers MUST NOT invoke paths for modes not listed in
  * `supportedModes`.
@@ -51,7 +52,7 @@ const VERSION_INFO: VersionInfo = {
   implVersion: '0.0.0-alpha.0',
   picProtocolVersion: 'PIC/1.0',
   conformanceManifestRef: 'v0.9.0-alpha.2',
-  supportedModes: ['canonicalization', 'core'],
+  supportedModes: ['canonicalization', 'core', 'trust_sanitization'],
 };
 
 /**

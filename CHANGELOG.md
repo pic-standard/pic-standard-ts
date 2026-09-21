@@ -8,14 +8,23 @@ https://semver.org/
 ## [Unreleased]
 
 PIC-CJSON/1.0 canonicalization, proposal schema validation, error-code
-mirror, and the core verifier pipeline. Currently claims canonicalization
-and core parity. Trust-sanitization parity against the full vendored
-vector suite is not yet complete, and evidence verification is not
-implemented in v0.9.0, so this package MUST NOT be treated as a fully
-conformant PIC verifier. Marked `"private": true` on npm.
+mirror, the core verifier pipeline, and trust-sanitization vector
+parity. Currently claims canonicalization, core, and trust-sanitization
+parity. Evidence-mode parity, signature verification, and
+evidence-derived trust remain out of scope for v0.9.0, so this package
+MUST NOT be treated as a fully conformant PIC verifier. Marked
+`"private": true` on npm.
 
 ### Added
 
+- Trust-sanitization vector test suite in
+  `test/trust_sanitization.test.ts` (27 tests). Manifest-driven against
+  the vendored 24-vector matrix (`strict_trust × verify_evidence` across
+  6 proposal bases). Explicit block-branch guard requires every block
+  vector to carry an `expected_error_code`. Explicit
+  `verify_evidence`-is-ignored guard pins that evidence-mode is out of
+  the v0.9.0 TS scope. Direct local test pins `strictTrust` default as
+  equivalent to `strictTrust: true`.
 - `verifyProposal(proposal, options?)` in `src/pipeline.ts` implementing
   the PIC/1.0 core verifier pipeline. Runs (in order) schema validation,
   duplicate provenance-id check, strict-trust sanitization (defensive
@@ -93,8 +102,9 @@ conformant PIC verifier. Marked `"private": true` on npm.
 ### Changed
 
 - `getVersion().supportedModes` now returns
-  `['canonicalization', 'core']` (was `['canonicalization']` before B5,
-  `[]` before B2).
+  `['canonicalization', 'core', 'trust_sanitization']` (was
+  `['canonicalization', 'core']` before B6, `['canonicalization']`
+  before B5, `[]` before B2).
 - Public positioning updated to reflect that verifier decisions are now
   implemented and core parity is claimed. Evidence verification and
   trust-sanitization parity are still explicitly out of the current
@@ -102,10 +112,9 @@ conformant PIC verifier. Marked `"private": true` on npm.
 
 ### Notes
 
-- Conformance modes claimed: `canonicalization` and `core`.
-  Trust-sanitization parity against the vendored vector suite lands in
-  a subsequent work block. Evidence-mode parity is out of scope for
-  v0.9.0 entirely.
+- Conformance modes claimed: `canonicalization`, `core`, and
+  `trust_sanitization`. Evidence-mode parity, signature verification,
+  and evidence-derived trust remain out of scope for v0.9.0.
 - The `@pic-standard/pic-standard-ts` package name is not yet published
   to npm. It is marked `"private": true` and will remain so until an
   explicit release/publish PR removes that guard.
