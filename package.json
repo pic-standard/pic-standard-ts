@@ -33,13 +33,15 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "conformance": "npm run build && node dist/run.js --manifest vendor/pic-standard/conformance/manifest.json --filter-mode canonicalization --filter-mode core --filter-mode trust_sanitization",
+    "conformance:json": "npm run build && node dist/run.js --manifest vendor/pic-standard/conformance/manifest.json --filter-mode canonicalization --filter-mode core --filter-mode trust_sanitization --json"
   },
   "dependencies": {
     "ajv": "^8.17.1",

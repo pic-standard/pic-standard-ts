@@ -3,14 +3,17 @@
 # Triggered on pushes to main and pull requests targeting main.
 #
 # Runs on Node 20 (matches package.json engines >=20.19.0). Node 20 + 22
-# matrix expansion planned for B8 once real implementation code exists.
+# matrix expansion planned for B8.
 #
 # Steps: install (npm ci for reproducibility), format:check, lint,
-# typecheck, test. Fast-failing order.
+# typecheck, test, build, conformance. Fast-failing order.
+#
+# The build step compiles src/ to dist/ so the conformance step can
+# invoke `node dist/run.js` against the vendored manifest.
 #
 # The checkout step uses `submodules: recursive` so the vendored
 # pic-standard corpus (added at B1 under vendor/pic-standard/) is
-# available to tests that read the conformance manifest.
+# available to tests and the conformance runner.
 
 name: CI
 
@@ -20,7 +23,6 @@ on:
   pull_request:
     branches: [main]
 
-# Least-privilege default; individual jobs elevate if needed.
 permissions:
   contents: read
 
@@ -61,3 +63,9 @@ jobs:
 
       - name: Test
         run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Conformance
+        run: npm run conformance
