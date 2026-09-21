@@ -17,6 +17,39 @@ package MUST NOT be treated as a fully conformant PIC verifier. Marked
 
 ### Added
 
+- Advisory differential CI job (`Differential CI vs Python (advisory)`)
+  in `.github/workflows/ci.yml`. Runs on `push` to `main` and
+  `pull_request` targeting `main`; Node 20 only (matrix Node coverage
+  handled by the `build` job). Installs `pic_standard` from the
+  vendored submodule so the manifest, schema, vectors, and Python
+  reference verifier all come from the same pinned commit. Emits both
+  TypeScript and Python conformance envelopes for the three claimed
+  modes (canonicalization + core + trust_sanitization; evidence is
+  deliberately unimplemented in TS), then compares the plan section
+  8.2 semantic subset via `scripts/diff_conformance.py`. Not part of
+  branch protection: a red diff surfaces real signal without blocking
+  merges. Release-tag gating is deferred to B10. On failure, uploads
+  `py.json`, `ts.json`, and `diff.txt` as a run-scoped artifact for
+  7 days.
+- `scripts/diff_conformance.py` implementing the plan section 8.2
+  differential-conformance contract. Two-positional-arg CLI
+  (`python scripts/diff_conformance.py <a.json> <b.json>`), stable so
+  Repo A's future authoritative script can drop in without churn.
+  Projects each envelope to
+  `{summary: {total, passed, failed, all_passed, diagnostic},
+exit_code, results[]: {id, passed, reason_code}}` with `results[]`
+  order preserved, canonicalizes with sorted keys + LF + indent, and
+  byte-compares. Exit codes: 0 match, 1 differ (unified diff to
+  stderr), 2 usage/malformed-input. Custom `InputError` for bad-input
+  paths (helpers never call `SystemExit` directly).
+- `scripts/test_diff_conformance.py` self-test (15 tests) pinning the
+  projection contract independently of real runner output. Verifies
+  match on identical envelopes, on message-only diffs, on
+  selection/manifest_version diffs, and on `results[].mode` diffs;
+  differ on `reason_code` / result-order / `passed` / `exit_code` /
+  `summary.diagnostic` diffs; exit 2 on missing summary,
+  missing-summary-field, missing-result-field, malformed JSON, missing
+  file, and wrong-arg-count.
 - Conformance runner in `src/run.ts` producing a differential-CI-ready
   JSON envelope. Public entry `runConformance(options): Envelope` never
   throws; also exports `renderJson`, `renderHuman`, and the envelope
@@ -153,6 +186,10 @@ package MUST NOT be treated as a fully conformant PIC verifier. Marked
 
 ### Notes
 
+- The differential CI job is deliberately advisory: it can fail
+  visibly on PRs, but it is not in the required-checks list on `main`.
+  Release-tag gating (a required diff for Repo B tags) is deferred to
+  B10.
 - Conformance modes claimed: `canonicalization`, `core`, and
   `trust_sanitization`. Evidence-mode parity, signature verification,
   and evidence-derived trust remain out of scope for v0.9.0.
