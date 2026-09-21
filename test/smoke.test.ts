@@ -22,9 +22,9 @@ describe('version metadata', () => {
     expect(v.conformanceManifestRef).toBe('v0.9.0-alpha.2');
   });
 
-  it('claims canonicalization and core parity', () => {
+  it('claims canonicalization, core, and trust-sanitization parity', () => {
     const v = getVersion();
-    expect(v.supportedModes).toEqual(['canonicalization', 'core']);
+    expect(v.supportedModes).toEqual(['canonicalization', 'core', 'trust_sanitization']);
   });
 });
 
