@@ -53,6 +53,8 @@ This TypeScript implementation currently supports:
   - high-impact causal contract checks
 - Trust-sanitization parity against the vendored 24-vector matrix
 - A conformance runner for the claimed modes
+- An advisory differential CI job comparing the TypeScript envelope
+  against the Python reference verifier on the same pinned corpus
 
 The library surface provides PIC-CJSON canonicalization, proposal schema
 validation, the `PICErrorCode` mirror, and `verifyProposal()` for core
@@ -139,6 +141,42 @@ npm run --silent conformance:json
 The runner covers only the claimed modes. Explicit
 `--filter-mode evidence` fails closed because evidence-mode parity is not
 implemented in this TypeScript build.
+
+## Differential CI
+
+An advisory CI job runs on every push to `main` and every PR into
+`main` to compare this TypeScript implementation's conformance
+envelope against the Python reference verifier's, on the same pinned
+vendored corpus.
+
+Both runners emit their JSON envelope for the three claimed modes
+(canonicalization, core, trust_sanitization). A small Python diff
+script projects each envelope to the semantic subset that matters for
+cross-language parity: `summary`, `exit_code`, and
+`results[] | {id, passed, reason_code}` in emitted order. It then
+canonicalizes with sorted keys and byte-compares.
+
+Evidence-mode is deliberately unimplemented in TypeScript and is not
+part of the differential contract.
+
+The job is **advisory**: a red diff surfaces real signal but does not
+block merges. Release-tag gating, where this diff becomes required
+for release tags, is deferred to a later block.
+
+To reproduce locally you need Python 3.11 and the vendored source:
+
+```bash
+python -m pip install ./vendor/pic-standard/sdk-python
+npm run --silent conformance:json > ts.json
+( cd vendor/pic-standard && \
+    python -m conformance.run --manifest conformance/manifest.json \
+      --filter-mode canonicalization --filter-mode core \
+      --filter-mode trust_sanitization --json ) > py.json
+python scripts/diff_conformance.py py.json ts.json
+```
+
+Exit 0 means the projected subsets match. Exit 1 means they differ and
+a unified diff is written to stderr.
 
 ## Getting started
 

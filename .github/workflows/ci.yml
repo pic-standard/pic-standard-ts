@@ -2,26 +2,38 @@
 #
 # Triggered on pushes to main and pull requests targeting main.
 #
-# Runs on a matrix of Node 20 and Node 22.
+# Two jobs:
 #
-# Node 20 is retained as the package's current engines floor
-# (>=20.19.0) and compatibility floor for v0.9.0. Node 22 provides
-# coverage for the newer supported LTS line used by many current
-# deployments. Node 24+ expansion is intentionally deferred.
+# 1. `build` -- matrix of Node 20 and Node 22.
+#    Node 20 is retained as the package's current engines floor
+#    (>=20.19.0) and compatibility floor for v0.9.0. Node 22 provides
+#    coverage for the newer supported LTS line used by many current
+#    deployments. Node 24+ expansion is intentionally deferred.
+#    fail-fast: false so a Node 22 failure does not abort the Node 20
+#    leg (or vice versa) and both signals surface.
 #
-# fail-fast: false so a Node 22 failure does not abort the Node 20
-# leg (or vice versa) and both signals surface.
+#    Steps: install (npm ci for reproducibility), format:check, lint,
+#    typecheck, test, build, conformance. Fast-failing order within a
+#    leg. The build step compiles src/ to dist/ so the conformance
+#    step can invoke `node dist/run.js` against the vendored manifest.
 #
-# Steps: install (npm ci for reproducibility), format:check, lint,
-# typecheck, test, build, conformance. Fast-failing order within a
-# leg.
+# 2. `differential` -- advisory conformance parity vs the Python
+#    reference implementation. Runs on Node 20 only (the matrix
+#    already covers Node compatibility; differential does not need to
+#    duplicate it). Installs pic_standard from the vendored submodule
+#    so the manifest, schema, vectors, and Python verifier all come
+#    from the same pinned commit. Runs both runners with the three
+#    claimed-mode filter (canonicalization + core + trust_sanitization
+#    only; evidence is deliberately unimplemented in TS), then diffs
+#    the semantic subset per plan section 8.2.
 #
-# The build step compiles src/ to dist/ so the conformance step can
-# invoke `node dist/run.js` against the vendored manifest.
+#    Advisory: this job is NOT part of branch protection. A red diff
+#    surfaces a real signal but does not block merges. Release-tag
+#    gating is deferred to B10.
 #
-# The checkout step uses `submodules: recursive` so the vendored
-# pic-standard corpus (added at B1 under vendor/pic-standard/) is
-# available to tests and the conformance runner.
+# The checkout step in both jobs uses `submodules: recursive` so the
+# vendored pic-standard corpus is available to tests, the TypeScript
+# conformance runner, and the Python reference runner.
 
 name: CI
 
@@ -81,3 +93,76 @@ jobs:
 
       - name: Conformance
         run: npm run conformance
+
+  differential:
+    name: Differential CI vs Python (advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install pic_standard from vendored submodule
+        run: python -m pip install ./vendor/pic-standard/sdk-python
+
+      - name: Self-test the diff script
+        run: python scripts/test_diff_conformance.py
+
+      - name: Build TypeScript runner
+        run: npm run build
+
+      - name: Emit TypeScript envelope (ts.json)
+        run: |
+          node dist/run.js \
+            --manifest vendor/pic-standard/conformance/manifest.json \
+            --filter-mode canonicalization \
+            --filter-mode core \
+            --filter-mode trust_sanitization \
+            --json > ts.json
+
+      - name: Emit Python envelope (py.json)
+        working-directory: vendor/pic-standard
+        run: |
+          python -m conformance.run \
+            --manifest conformance/manifest.json \
+            --filter-mode canonicalization \
+            --filter-mode core \
+            --filter-mode trust_sanitization \
+            --json > "$GITHUB_WORKSPACE/py.json"
+
+      - name: Diff Python vs TypeScript envelopes
+        run: |
+          python scripts/diff_conformance.py py.json ts.json 2> diff.txt || {
+            cat diff.txt >&2
+            exit 1
+          }
+
+      - name: Upload envelopes and diff on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: differential-envelopes-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            py.json
+            ts.json
+            diff.txt
+          retention-days: 7
+          if-no-files-found: warn
