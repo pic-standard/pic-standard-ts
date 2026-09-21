@@ -166,7 +166,7 @@ for release tags, is deferred to a later block.
 To reproduce locally you need Python 3.11 and the vendored source:
 
 ```bash
-python -m pip install ./vendor/pic-standard/sdk-python
+python -m pip install ./vendor/pic-standard
 npm run --silent conformance:json > ts.json
 ( cd vendor/pic-standard && \
     python -m conformance.run --manifest conformance/manifest.json \

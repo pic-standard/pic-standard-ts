@@ -120,8 +120,8 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Install pic_standard from vendored submodule
-        run: python -m pip install ./vendor/pic-standard/sdk-python
+      - name: Install pic_standard from vendored pic-standard root
+        run: python -m pip install ./vendor/pic-standard
 
       - name: Self-test the diff script
         run: python scripts/test_diff_conformance.py
