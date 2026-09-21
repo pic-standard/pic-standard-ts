@@ -128,10 +128,12 @@ Run the claimed-mode conformance suite:
 npm run conformance
 ```
 
-Emit the JSON envelope used by future differential CI:
+Emit the JSON envelope used by future differential CI. The `--silent`
+flag suppresses npm's script header so the envelope on stdout is
+machine-parseable:
 
 ```bash
-npm run conformance:json
+npm run --silent conformance:json
 ```
 
 The runner covers only the claimed modes. Explicit
