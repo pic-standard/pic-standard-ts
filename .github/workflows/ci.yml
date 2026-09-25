@@ -4,7 +4,7 @@
 #
 # Two jobs:
 #
-# 1. `build` -- matrix of Node 20 and Node 22.
+# 1. `build` -- matrix of Ubuntu/Windows and Node 20/22.
 #    Node 20 is retained as the package's current engines floor
 #    (>=20.19.0) and compatibility floor for v0.9.0. Node 22 provides
 #    coverage for the newer supported LTS line used by many current
@@ -52,12 +52,13 @@ concurrency:
 
 jobs:
   build:
-    name: Build & test (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    name: Build & test (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         node: ['20', '22']
 
     steps:
