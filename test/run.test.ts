@@ -87,11 +87,11 @@ describe.skipIf(!submoduleAvailable)('runConformance: envelope shape', () => {
 // ---------------------------------------------------------------------------
 
 describe.skipIf(!submoduleAvailable)('runConformance: happy paths', () => {
-  it('canonicalization-only filter passes 11 vectors, exit 0', () => {
+  it('canonicalization-only filter passes 15 vectors, exit 0', () => {
     const env = runConformance({ manifest: REAL_MANIFEST, filterModes: ['canonicalization'] });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(11);
-    expect(env.summary.passed).toBe(11);
+    expect(env.summary.total).toBe(15);
+    expect(env.summary.passed).toBe(15);
     expect(env.summary.failed).toBe(0);
     expect(env.exit_code).toBe(0);
   });
@@ -112,14 +112,14 @@ describe.skipIf(!submoduleAvailable)('runConformance: happy paths', () => {
     expect(env.exit_code).toBe(0);
   });
 
-  it('golden three-claimed-modes filter passes 43 vectors, exit 0', () => {
+  it('golden three-claimed-modes filter passes 47 vectors, exit 0', () => {
     const env = runConformance({
       manifest: REAL_MANIFEST,
       filterModes: ['canonicalization', 'core', 'trust_sanitization'],
     });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(43);
-    expect(env.summary.passed).toBe(43);
+    expect(env.summary.total).toBe(47);
+    expect(env.summary.passed).toBe(47);
     expect(env.exit_code).toBe(0);
   });
 
@@ -150,10 +150,10 @@ describe.skipIf(!submoduleAvailable)('runConformance: filter semantics', () => {
       filterIds: ['core-allow-001-read-only'],
     });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(12); // 11 canon + 1 core
+    expect(env.summary.total).toBe(16); // 15 canon + 1 core
     const ids = env.results.map((r) => r.id);
     expect(ids).toContain('core-allow-001-read-only');
-    expect(ids.filter((id) => id.startsWith('canon-')).length).toBe(11);
+    expect(ids.filter((id) => id.startsWith('canon-')).length).toBe(15);
   });
 
   it('results order matches manifest order after filtering', () => {
