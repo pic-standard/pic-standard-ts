@@ -96,11 +96,11 @@ describe.skipIf(!submoduleAvailable)('runConformance: happy paths', () => {
     expect(env.exit_code).toBe(0);
   });
 
-  it('core-only filter passes 8 vectors, exit 0', () => {
+  it('core-only filter passes 10 vectors, exit 0', () => {
     const env = runConformance({ manifest: REAL_MANIFEST, filterModes: ['core'] });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(8);
-    expect(env.summary.passed).toBe(8);
+    expect(env.summary.total).toBe(10);
+    expect(env.summary.passed).toBe(10);
     expect(env.exit_code).toBe(0);
   });
 
@@ -112,14 +112,14 @@ describe.skipIf(!submoduleAvailable)('runConformance: happy paths', () => {
     expect(env.exit_code).toBe(0);
   });
 
-  it('golden three-claimed-modes filter passes 47 vectors, exit 0', () => {
+  it('golden three-claimed-modes filter passes 49 vectors, exit 0', () => {
     const env = runConformance({
       manifest: REAL_MANIFEST,
       filterModes: ['canonicalization', 'core', 'trust_sanitization'],
     });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(47);
-    expect(env.summary.passed).toBe(47);
+    expect(env.summary.total).toBe(49);
+    expect(env.summary.passed).toBe(49);
     expect(env.exit_code).toBe(0);
   });
 
