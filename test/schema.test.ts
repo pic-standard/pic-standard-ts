@@ -1,21 +1,28 @@
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 import { describe, it, expect } from 'vitest';
 
 import { validateProposal, type ValidationResult } from '../src/schema.js';
 import type { ActionProposal, HashEvidence, SigEvidence } from '../src/types.js';
 
-const SCHEMA_PATH = resolve(
-  process.cwd(),
-  'vendor',
-  'pic-standard',
-  'sdk-python',
-  'pic_standard',
-  'schemas',
-  'proposal_schema.json',
-);
-const submoduleAvailable = existsSync(SCHEMA_PATH);
+// The proposal schema is a required package asset copied from the pinned
+// pic-standard submodule into `schemas/` by `scripts/copy-schema.mjs`
+// (invoked automatically via `pretest`). Fail explicitly at test discovery
+// if it is missing; `src/schema.ts` would surface the same condition less
+// clearly on first use, and silently skipping would hide a real packaging
+// regression.
+const SCHEMA_PATH = fileURLToPath(new URL('../schemas/proposal_schema.json', import.meta.url));
+try {
+  readFileSync(SCHEMA_PATH);
+} catch (err) {
+  const detail = err instanceof Error ? err.message : String(err);
+  throw new Error(
+    `test/schema.test.ts: bundled proposal schema missing at ${SCHEMA_PATH}: ${detail}. ` +
+      `This is a required package asset. Run \`npm run copy-schema\` to ` +
+      `regenerate it from the pinned pic-standard submodule.`,
+  );
+}
 
 /** Minimal valid proposal used as a fixture base. */
 function baseProposal(): ActionProposal {
@@ -44,7 +51,7 @@ function expectValidationError(
   }
 }
 
-describe.skipIf(!submoduleAvailable)('validateProposal: positive cases', () => {
+describe('validateProposal: positive cases', () => {
   it('accepts the minimal valid proposal', () => {
     const result = validateProposal(baseProposal());
     expect(result.ok).toBe(true);
@@ -92,7 +99,7 @@ describe.skipIf(!submoduleAvailable)('validateProposal: positive cases', () => {
   });
 });
 
-describe.skipIf(!submoduleAvailable)('validateProposal: top-level rejection', () => {
+describe('validateProposal: top-level rejection', () => {
   it('rejects a proposal missing `protocol`', () => {
     const proposal: unknown = {
       intent: 'read a file',
@@ -160,7 +167,7 @@ describe.skipIf(!submoduleAvailable)('validateProposal: top-level rejection', ()
   });
 });
 
-describe.skipIf(!submoduleAvailable)('validateProposal: provenance rejection', () => {
+describe('validateProposal: provenance rejection', () => {
   it('rejects a provenance item missing `trust`', () => {
     const proposal: unknown = {
       ...baseProposal(),
@@ -195,7 +202,7 @@ describe.skipIf(!submoduleAvailable)('validateProposal: provenance rejection', (
   });
 });
 
-describe.skipIf(!submoduleAvailable)('validateProposal: action rejection', () => {
+describe('validateProposal: action rejection', () => {
   it('rejects action args that are not an object', () => {
     const proposal: unknown = {
       ...baseProposal(),
@@ -219,7 +226,7 @@ describe.skipIf(!submoduleAvailable)('validateProposal: action rejection', () =>
   });
 });
 
-describe.skipIf(!submoduleAvailable)('validateProposal: evidence rejection', () => {
+describe('validateProposal: evidence rejection', () => {
   it('rejects hash evidence with uppercase SHA-256 hex (v0.9.0a2 tightening)', () => {
     const proposal: unknown = {
       ...baseProposal(),

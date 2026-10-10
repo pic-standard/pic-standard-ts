@@ -1,6 +1,6 @@
 {
   "name": "@pic-standard/pic-standard-ts",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "TypeScript implementation of PIC Standard (Provenance & Intent Contracts), passing the shared conformance corpus for canonicalization, core, and trust_sanitization modes.",
   "type": "module",
   "main": "./dist/index.js",
@@ -13,6 +13,7 @@
   },
   "files": [
     "dist/",
+    "schemas/",
     "CHANGELOG.md"
   ],
   "keywords": [
@@ -44,16 +45,21 @@
     "node": ">=20.19.0"
   },
   "scripts": {
+    "copy-schema": "node scripts/copy-schema.mjs",
+    "prebuild": "npm run copy-schema",
+    "pretest": "npm run copy-schema",
+    "pretest:watch": "npm run copy-schema",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:packed": "node scripts/test-packed-artifact.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "conformance": "npm run build && node dist/run.js --manifest vendor/pic-standard/conformance/manifest.json --filter-mode canonicalization --filter-mode core --filter-mode trust_sanitization",
     "conformance:json": "npm run build && node dist/run.js --manifest vendor/pic-standard/conformance/manifest.json --filter-mode canonicalization --filter-mode core --filter-mode trust_sanitization --json",
-    "prepublishOnly": "npm run build"
+    "prepack": "npm run build"
   },
   "dependencies": {
     "ajv": "^8.17.1",

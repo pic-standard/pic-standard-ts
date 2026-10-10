@@ -13,6 +13,9 @@ out/
 *.tsbuildinfo
 .tsbuild/
 
+# Generated schema (produced by scripts/copy-schema.mjs from vendor/pic-standard)
+/schemas/proposal_schema.json
+
 # Python
 __pycache__/
 *.py[cod]

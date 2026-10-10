@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 This project follows Semantic Versioning:
 https://semver.org/
 
+## [0.9.1] - 2026-10-10
+
+### Fixed
+
+- Package the proposal schema into the npm tarball. Previously
+  `src/schema.ts` resolved
+  `vendor/pic-standard/sdk-python/pic_standard/schemas/proposal_schema.json`
+  from `process.cwd()`, which worked in a repo checkout but caused
+  `verifyProposal()` to crash with `ENOENT` for any consumer who
+  installed the package via `npm`. The schema now ships as
+  `schemas/proposal_schema.json` inside the package and is loaded
+  relative to `import.meta.url`, independent of the caller's working
+  directory. Canonicalization, error types, and other exports that did
+  not touch the proposal schema were unaffected by the earlier defect.
+
+### Added
+
+- `scripts/copy-schema.mjs`: copies the proposal schema from the
+  pinned pic-standard submodule into `schemas/` before every build and
+  test. Fails fast if the submodule is uninitialized.
+- `scripts/test-packed-artifact.mjs` (invoked via `npm run test:packed`):
+  standalone regression test that packs this package via `npm pack`,
+  installs the resulting tarball into a throwaway project under
+  `os.tmpdir()`, and asserts an allow, a block
+  (`PIC_TOOL_BINDING_MISMATCH`) and an invalid-input
+  (`PIC_SCHEMA_INVALID`) outcome against the installed consumer-facing
+  export. Runs outside `npm test` and from an unrelated working
+  directory; cleans up temp dirs in `finally`. Invokes npm through
+  `process.execPath` + `npm_execpath` with no shell so paths
+  containing spaces are safe on Windows.
+- CI job `test-packed-artifact` on ubuntu-latest and windows-latest.
+  Required-check wiring in branch protection is a separate step after
+  the job first runs green.
+- Package scripts: `copy-schema`, `prebuild`, `pretest`,
+  `pretest:watch`, `test:packed`, `prepack`. The `prepack` hook
+  replaces the previous `prepublishOnly` so both `npm pack` and
+  `npm publish` regenerate the schema and compile `dist/`.
+
+### Changed
+
+- `package.json` `files` now includes `schemas/` alongside `dist/` and
+  `CHANGELOG.md` so the bundled schema ships with every tarball.
+
 ## [0.9.0] - 2026-09-21
 
 First v0.9.0 release of the TypeScript implementation of PIC Standard.
