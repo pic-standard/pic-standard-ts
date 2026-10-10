@@ -2,10 +2,10 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { runConformance, renderJson, type Envelope } from '../src/run.js';
 import { CONFORMANCE_ROOT } from '../src/fixtures.js';
+import { renderJson, runConformance, type Envelope } from '../src/run.js';
 
 const REAL_MANIFEST = resolve(CONFORMANCE_ROOT, 'manifest.json');
 const submoduleAvailable = existsSync(REAL_MANIFEST);
@@ -15,11 +15,21 @@ const submoduleAvailable = existsSync(REAL_MANIFEST);
  * mode is in `modes`. Used to pin runner output ordering against the
  * manifest's declared order.
  */
-function manifestIdsForModes(modes: readonly string[]): string[] {
+function manifestIdsForModes(
+  modes: readonly string[],
+  filterIds: readonly string[] = [],
+): string[] {
   const raw = readFileSync(REAL_MANIFEST, 'utf-8');
   const parsed = JSON.parse(raw) as { vectors?: Array<{ id?: unknown; mode?: unknown }> };
+
+  const anyFilter = modes.length > 0 || filterIds.length > 0;
+
   return (parsed.vectors ?? [])
-    .filter((v) => typeof v.id === 'string' && modes.includes(String(v.mode)))
+    .filter((v) => {
+      if (typeof v.id !== 'string') return false;
+      if (!anyFilter) return true;
+      return modes.includes(String(v.mode)) || filterIds.includes(String(v.id));
+    })
     .map((v) => String(v.id));
 }
 
@@ -85,51 +95,101 @@ describe.skipIf(!submoduleAvailable)('runConformance: envelope shape', () => {
 // ---------------------------------------------------------------------------
 // Suite 2: happy paths (single mode + golden three-mode + unfiltered).
 // ---------------------------------------------------------------------------
-
 describe.skipIf(!submoduleAvailable)('runConformance: happy paths', () => {
-  it('canonicalization-only filter passes 15 vectors, exit 0', () => {
+  it('canonicalization-only filter passes all vectors, exit 0', () => {
+    const expectedIds = manifestIdsForModes(['canonicalization']);
+    expect(expectedIds.length).toBeGreaterThan(0);
+
     const env = runConformance({ manifest: REAL_MANIFEST, filterModes: ['canonicalization'] });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(15);
-    expect(env.summary.passed).toBe(15);
+
+    expect(env.results.map((r) => r.id)).toEqual(expectedIds);
+    expect(env.summary.total).toBe(expectedIds.length);
+    expect(env.summary.passed).toBe(expectedIds.length);
     expect(env.summary.failed).toBe(0);
+    expect(env.summary.all_passed).toBe(true);
     expect(env.exit_code).toBe(0);
   });
 
-  it('core-only filter passes 10 vectors, exit 0', () => {
+  it('core-only filter passes all vectors, exit 0', () => {
+    const expectedIds = manifestIdsForModes(['core']);
+    expect(expectedIds.length).toBeGreaterThan(0);
+
     const env = runConformance({ manifest: REAL_MANIFEST, filterModes: ['core'] });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(10);
-    expect(env.summary.passed).toBe(10);
+
+    expect(env.results.map((r) => r.id)).toEqual(expectedIds);
+    expect(env.summary.total).toBe(expectedIds.length);
+    expect(env.summary.passed).toBe(expectedIds.length);
+    expect(env.summary.failed).toBe(0);
+    expect(env.summary.all_passed).toBe(true);
+    expect(env.selection.selected).toBe(expectedIds.length);
     expect(env.exit_code).toBe(0);
   });
 
-  it('trust_sanitization-only filter passes 24 vectors, exit 0', () => {
+  it('trust_sanitization-only filter passes all vectors, exit 0', () => {
+    const expectedIds = manifestIdsForModes(['trust_sanitization']);
+    expect(expectedIds.length).toBeGreaterThan(0);
+
     const env = runConformance({ manifest: REAL_MANIFEST, filterModes: ['trust_sanitization'] });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(24);
-    expect(env.summary.passed).toBe(24);
+
+    expect(env.results.map((r) => r.id)).toEqual(expectedIds);
+    expect(env.summary.total).toBe(expectedIds.length);
+    expect(env.summary.passed).toBe(expectedIds.length);
+    expect(env.summary.failed).toBe(0);
+    expect(env.summary.all_passed).toBe(true);
+    expect(env.selection.selected).toBe(expectedIds.length);
     expect(env.exit_code).toBe(0);
   });
 
-  it('golden three-claimed-modes filter passes 49 vectors, exit 0', () => {
+  it('golden three-claimed-modes filter passes all selected vectors, exit 0', () => {
+    const modes = ['canonicalization', 'core', 'trust_sanitization'];
+    const expectedIds = manifestIdsForModes(modes);
+    expect(expectedIds.length).toBeGreaterThan(0);
+
     const env = runConformance({
       manifest: REAL_MANIFEST,
-      filterModes: ['canonicalization', 'core', 'trust_sanitization'],
+      filterModes: modes,
     });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(49);
-    expect(env.summary.passed).toBe(49);
+
+    expect(env.results.map((r) => r.id)).toEqual(expectedIds);
+    expect(env.summary.total).toBe(expectedIds.length);
+    expect(env.summary.passed).toBe(expectedIds.length);
+    expect(env.summary.failed).toBe(0);
+    expect(env.summary.all_passed).toBe(true);
+    expect(env.selection.selected).toBe(expectedIds.length);
     expect(env.exit_code).toBe(0);
   });
 
   it('unfiltered run includes evidence-mode failures, exit 1', () => {
+    const allManifestIds = manifestIdsForModes([
+      'canonicalization',
+      'core',
+      'trust_sanitization',
+      'evidence',
+    ]);
+    const expectedEvidenceIds = manifestIdsForModes(['evidence']);
+
+    expect(allManifestIds.length).toBeGreaterThan(0);
+    expect(expectedEvidenceIds.length).toBeGreaterThan(0);
+
     const env = runConformance({ manifest: REAL_MANIFEST });
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBeGreaterThan(42);
-    expect(env.summary.failed).toBeGreaterThan(0);
+
+    expect(env.selection.total_in_manifest).toBe(allManifestIds.length);
+    expect(env.selection.selected).toBe(allManifestIds.length);
+    expect(env.summary.total).toBe(allManifestIds.length);
+
+    expect(env.summary.failed).toBe(expectedEvidenceIds.length);
+    expect(env.summary.passed).toBe(allManifestIds.length - expectedEvidenceIds.length);
+    expect(env.summary.all_passed).toBe(false);
+
+    expect(env.results.map((r) => r.id)).toEqual(allManifestIds);
+
     const evidenceResults = env.results.filter((r) => r.mode === 'evidence');
-    expect(evidenceResults.length).toBeGreaterThan(0);
+    expect(evidenceResults.map((r) => r.id)).toEqual(expectedEvidenceIds);
     for (const r of evidenceResults) {
       expect(r.passed).toBe(false);
       expect(r.reason_code).toBe('runner_error');
@@ -141,32 +201,50 @@ describe.skipIf(!submoduleAvailable)('runConformance: happy paths', () => {
 // ---------------------------------------------------------------------------
 // Suite 3: filter semantics (union, ordering).
 // ---------------------------------------------------------------------------
-
 describe.skipIf(!submoduleAvailable)('runConformance: filter semantics', () => {
-  it('filter-mode and filter-id union together', () => {
+  it('filter-mode and filter-id union together dynamically', () => {
+    const expectedIds = manifestIdsForModes(['canonicalization'], ['core-allow-001-read-only']);
+    expect(expectedIds.length).toBeGreaterThan(0);
+
     const env = runConformance({
       manifest: REAL_MANIFEST,
       filterModes: ['canonicalization'],
       filterIds: ['core-allow-001-read-only'],
     });
+
     assertEnvelopeShape(env);
-    expect(env.summary.total).toBe(16); // 15 canon + 1 core
-    const ids = env.results.map((r) => r.id);
-    expect(ids).toContain('core-allow-001-read-only');
-    expect(ids.filter((id) => id.startsWith('canon-')).length).toBe(15);
+    expect(env.results.map((r) => r.id)).toEqual(expectedIds);
+    expect(env.summary.total).toBe(expectedIds.length);
+  });
+
+  it('overlapping mode and id selections deduplicate perfectly', () => {
+    const expectedIds = manifestIdsForModes(['core']);
+    expect(expectedIds.length).toBeGreaterThan(0);
+
+    const env = runConformance({
+      manifest: REAL_MANIFEST,
+      filterModes: ['core'],
+      filterIds: ['core-allow-001-read-only'],
+    });
+
+    assertEnvelopeShape(env);
+    expect(env.results.map((r) => r.id)).toEqual(expectedIds);
+    expect(env.summary.total).toBe(expectedIds.length);
   });
 
   it('results order matches manifest order after filtering', () => {
     const modes = ['canonicalization', 'core', 'trust_sanitization'];
+    const expectedIds = manifestIdsForModes(modes);
+    expect(expectedIds.length).toBeGreaterThan(0);
+
     const env = runConformance({
       manifest: REAL_MANIFEST,
       filterModes: modes,
     });
 
-    expect(env.results.map((r) => r.id)).toEqual(manifestIdsForModes(modes));
+    expect(env.results.map((r) => r.id)).toEqual(expectedIds);
   });
 });
-
 // ---------------------------------------------------------------------------
 // Suite 4: unsupported / unknown filter values (exit 2).
 // ---------------------------------------------------------------------------
@@ -345,6 +423,51 @@ describe('runConformance: manifest errors', () => {
     expect(env.summary.diagnostic).toBeNull();
     expect(env.results).toHaveLength(1);
     expect(env.results[0]?.reason_code).toBe('manifest_drift');
+  });
+
+  it('successful synthetic filtering with fixed expectations', () => {
+    const inlineManifest = join(tmpRoot, 'inline.json');
+    writeFileSync(
+      inlineManifest,
+      JSON.stringify({
+        version: 'conformance/v0.1',
+        vectors: [
+          { id: 'v1', file: 'f1.json', mode: 'core', expected: 'allow' },
+          { id: 'v2', file: 'f2.json', mode: 'trust_sanitization', expected: 'allow' },
+          { id: 'v3', file: 'f3.json', mode: 'core', expected: 'allow' },
+          { id: 'v4', file: 'f4.json', mode: 'canonicalization', expected: 'canonical_match' },
+        ],
+      }),
+      'utf-8',
+    );
+
+    const dummyCore = {
+      proposal: {
+        protocol: 'PIC/1.0',
+        intent: 'read',
+        impact: 'read',
+        provenance: [],
+        claims: [],
+        action: { tool: 'x', args: {} },
+      },
+    };
+    writeFileSync(join(tmpRoot, 'f1.json'), JSON.stringify(dummyCore), 'utf-8');
+    writeFileSync(join(tmpRoot, 'f2.json'), JSON.stringify(dummyCore), 'utf-8');
+    writeFileSync(join(tmpRoot, 'f3.json'), JSON.stringify(dummyCore), 'utf-8');
+
+    const env = runConformance({
+      manifest: inlineManifest,
+      filterModes: ['core'],
+      filterIds: ['v2', 'v3'],
+    });
+
+    assertEnvelopeShape(env);
+    expect(env.exit_code).toBe(0);
+
+    expect(env.results.map((r) => r.id)).toEqual(['v1', 'v2', 'v3']);
+    expect(env.summary.total).toBe(3);
+    expect(env.summary.passed).toBe(3);
+    expect(env.summary.all_passed).toBe(true);
   });
 });
 
