@@ -78,9 +78,8 @@ Not yet implemented in v0.9.0:
 - signature verification
 - evidence-derived trust
 - HTTP bridge parity
-- npm release parity with the Python package
 
-This package is prepared for publication to npm as `@pic-standard/pic-standard-ts@0.9.0`. After publication, install with `npm install @pic-standard/pic-standard-ts`. It should not yet be treated as implementing full PIC evidence-mode verifier semantics: evidence-mode parity remains a v0.9.x completion item.
+Published to npm as `@pic-standard/pic-standard-ts@0.9.0`; install with `npm install @pic-standard/pic-standard-ts`. It does not implement PIC evidence-mode verifier semantics: evidence mode fails closed, and evidence-mode parity remains a v0.9.x completion item.
 
 ## Tiny example
 

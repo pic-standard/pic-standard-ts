@@ -1,25 +1,29 @@
 # Contributing to pic-standard-ts
 
-Thank you for your interest in the TypeScript implementation track for PIC
-Standard. This repository is pre-parity and under active development. Before
-contributing, please read the sections below.
+Thank you for your interest in the TypeScript implementation of PIC Standard.
+Before contributing, please read the sections below.
 
 ## Status and expectations
 
-The v0.9.0 target is TypeScript parity with the `pic-standard` Python
-reference implementation on the following conformance modes:
+v0.9.0, published to npm as `@pic-standard/pic-standard-ts@0.9.0`, passes the
+shared conformance corpus from the pinned `pic-standard` release for these
+modes:
 
 - `canonicalization`
 - `core`
 - `trust_sanitization`
 
-Evidence mode, HTTP bridge, and release/publish parity are explicitly out of
-scope for v0.9.0. Any code path that would require those must fail closed
-until implemented.
+Evidence verification and HTTP bridge parity are not implemented. The
+conformance runner rejects requests for unsupported evidence mode. This
+repository MUST NOT be described as conformant for any mode outside the three
+listed above, and evidence mode remains publicly unsupported until its full
+acceptance criteria pass.
 
-Until the conformance runner passes the modes listed above against the pinned
-`pic-standard` corpus, this repository MUST NOT be treated as a conformant
-PIC implementation.
+Evidence-mode support is the next track. It depends on the v1.0 contract that
+`pic-standard` is currently stabilizing, so implementation starts only on an
+agreed baseline. If you are interested, say so in
+[pic-standard discussion #117](https://github.com/pic-standard/pic-standard/discussions/117)
+or on [pic-standard#15](https://github.com/pic-standard/pic-standard/issues/15).
 
 ## Prerequisites
 
