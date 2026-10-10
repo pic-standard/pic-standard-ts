@@ -9,6 +9,8 @@
 
 > **v0.9.0 (2026-09-21):** First v0.9.0 release of the TypeScript verifier. Passes the shared conformance corpus from [`pic-standard/pic-standard@v0.9.0`](https://github.com/pic-standard/pic-standard/releases/tag/v0.9.0) for `canonicalization`, `core`, and `trust_sanitization`. Published to npm as `@pic-standard/pic-standard-ts@0.9.0`. Install with `npm install @pic-standard/pic-standard-ts`. Evidence-mode parity remains a v0.9.x completion item.
 
+> **Using PIC from a coding agent or Node.js service?** Start with the [agent integration guide](docs/for-agents.md): supported checks, a runnable allow/block example against the installed npm package, and when to use Python evidence verification.
+
 PIC Standard, short for **Provenance & Intent Contracts**, is a protocol
 for controlling AI-agent actions with structured intent, impact,
 provenance, and evidence.
