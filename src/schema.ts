@@ -1,37 +1,31 @@
 /**
  * PIC/1.0 Action Proposal schema validator.
  *
- * The Ajv validator is compiled lazily from the vendored copy of
- * `proposal_schema.json` at the current submodule pin. Ajv 8's default
+ * The Ajv validator is compiled lazily from this package's bundled
+ * copy of `proposal_schema.json` under `schemas/`. Ajv 8's default
  * strict mode stays on; `allErrors: true` lets callers see every
- * violation in one pass, and `validateSchema: true` verifies the schema
- * itself is well-formed at compile time.
+ * violation in one pass, and `validateSchema: true` verifies the
+ * schema itself is well-formed at compile time.
  *
- * Pre-publish implementation: the schema is loaded from the vendored
- * Repo A submodule in the working tree (resolved from `process.cwd()`).
- * Release packaging will replace this with package-local schema loading
- * before npm publish.
+ * The schema path resolves relative to this module's own URL, so it
+ * works identically whether loaded from `src/schema.ts` under source
+ * tests or from `dist/schema.js` inside an npm-installed consumer.
+ * The build script `scripts/copy-schema.mjs` copies the schema from
+ * the pinned pic-standard submodule into `schemas/` before every
+ * build and test; this package's `files` field ships `schemas/`
+ * alongside `dist/`.
  */
 
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { Ajv } from 'ajv';
 import type { ValidateFunction, ErrorObject, AnySchema } from 'ajv';
 
 import type { ActionProposal } from './types.js';
 
-// Pre-publish implementation: schema is loaded from the vendored Repo A
-// submodule in the working tree. Release packaging will replace this with
-// package-local schema loading before npm publish.
-const REPO_ROOT_SCHEMA_PATH = resolve(
-  process.cwd(),
-  'vendor',
-  'pic-standard',
-  'sdk-python',
-  'pic_standard',
-  'schemas',
-  'proposal_schema.json',
+const PACKAGE_SCHEMA_PATH = fileURLToPath(
+  new URL('../schemas/proposal_schema.json', import.meta.url),
 );
 
 /**
@@ -61,13 +55,16 @@ function loadValidator(): ValidateFunction {
   }
   let raw: string;
   try {
-    raw = readFileSync(REPO_ROOT_SCHEMA_PATH, 'utf-8');
+    raw = readFileSync(PACKAGE_SCHEMA_PATH, 'utf-8');
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     throw new Error(
-      `Could not read ${REPO_ROOT_SCHEMA_PATH}: ${detail}. ` +
-        'Run `git submodule update --init --recursive` to fetch the ' +
-        'vendored pic-standard corpus.',
+      `Could not read bundled proposal schema at ${PACKAGE_SCHEMA_PATH}: ${detail}. ` +
+        `This usually indicates a packaging failure: the published tarball ` +
+        `should include \`schemas/proposal_schema.json\` next to \`dist/\`. ` +
+        `In a source checkout, run \`npm run copy-schema\` (or any build/test ` +
+        `which triggers it automatically) to regenerate it from the pinned ` +
+        `pic-standard submodule.`,
     );
   }
   let schema: AnySchema;
@@ -75,7 +72,7 @@ function loadValidator(): ValidateFunction {
     schema = JSON.parse(raw) as AnySchema;
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
-    throw new Error(`Malformed JSON in ${REPO_ROOT_SCHEMA_PATH}: ${detail}`);
+    throw new Error(`Malformed JSON in ${PACKAGE_SCHEMA_PATH}: ${detail}`);
   }
   const ajv = new Ajv({
     allErrors: true,

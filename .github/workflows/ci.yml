@@ -95,6 +95,34 @@ jobs:
       - name: Conformance
         run: npm run conformance
 
+  test-packed-artifact:
+    name: Packed-artifact test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run packed-artifact smoke test
+        run: npm run test:packed
+
   differential:
     name: Differential CI vs Python (advisory)
     runs-on: ubuntu-latest
